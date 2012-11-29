@@ -1,0 +1,36 @@
+body {
+    background: #444;
+    color: #fff;
+    text-align: center;
+}
+
+#gamesTab {
+}
+
+#gamesTab td {
+    margin-right:10px;
+}
+
+#hours {
+    width: 20px;
+}
+
+#games {
+    display:inline-block;
+}
+
+#loading {
+    text-align: center;
+}
+
+#title, #content {
+    text-align: center;
+}
+
+#username {
+    width: 200px;
+}
+
+.greyed {
+    color: #ddd;
+}
