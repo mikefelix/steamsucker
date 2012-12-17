@@ -34,3 +34,7 @@ body {
 .greyed {
     color: #ddd;
 }
+
+.alignRight {
+    text-align: right;
+}

@@ -8,6 +8,9 @@ html(lang="en")
   body
     h1#title Got too many Steam games?
     #content
+      p.alignRight
+        a(href="/auth/steam")
+          img(src="sits_large_noborder.png")
       form(onsubmit="return false")
         p
           input#username(type="text", class="greyed", name="username", onchange="loadGames()", value="Username", onfocus="clearBox(this)")
