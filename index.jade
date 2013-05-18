@@ -6,11 +6,11 @@ html(lang="en")
     script(src="jquery-1.7.2.js")
     script(src="games.js")
   body
-    h1#title Got too many Steam games?
     #content
       p.alignRight
         a(href="/auth/steam")
           img(src="sits_large_noborder.png")
+      h1#title Got too many Steam games?
       form(onsubmit="return false")
         p
           input#username(type="text", class="greyed", name="username", onchange="loadGames()", value="Username", onfocus="clearBox(this)")
