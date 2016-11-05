@@ -78,7 +78,11 @@ var fix = function(games) {
     var g = [];
     try {
         for (var i = 0; i < games.length; i++) {
-            var hours = parseFloat(games[i].hoursOnRecord ? (games[i].hoursOnRecord[0] || 0) : 0);
+			var hours = 0;		
+			if(games[i] && games[i].hoursOnRecord)
+				hours = games[i].hoursOnRecord[0].replace(',', '');
+			console.log(hours);
+            hours = parseFloat(hours);
             g.push({ name:games[i].name[0], hoursOnRecord:hours });
         }
     }
@@ -120,11 +124,12 @@ app.get('/games/:user', function (request, response) {
                 throw 'Cannot contact Steam. Try again later.';
 
             parser.parseString(gamesXml, function (err, gamesJson) {
-                console.log(gamesJson);
+                //console.log(gamesJson.gamesList.games[0]);
                 if (err) throw err;
                 if (!gamesJson || !gamesJson.gamesList || !gamesJson.gamesList.games) throw "No data.";
 
                 response.send(fix(gamesJson.gamesList.games[0].game));
+				
             });
         }
         catch (e){
