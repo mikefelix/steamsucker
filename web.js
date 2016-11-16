@@ -1,14 +1,15 @@
+'use strict'
+
 // Steam API key: B52F360ACDA4ABBCF5CC56FF0887B88E
 
-var express = require('express');
-var http = require('http');
-var xml2js = require('xml2js');
-//var plates = require('plates');
-var jade = require('jade');
-var fs = require('fs');
-var parser = new xml2js.Parser();
-var passport = require('passport');
-var SteamStrategy = require('passport-steam').Strategy;
+const express = require('express');
+const http = require('http');
+const xml2js = require('xml2js');
+const jade = require('jade');
+const fs = require('fs');
+const parser = new xml2js.Parser();
+const passport = require('passport');
+const SteamStrategy = require('passport-steam').Strategy;
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -17,11 +18,11 @@ var SteamStrategy = require('passport-steam').Strategy;
 //   the user by ID when deserializing.  However, since this example does not
 //   have a database of user records, the complete Steam profile is serialized
 //   and deserialized.
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser(function(obj, done) {
+passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
 
@@ -34,10 +35,9 @@ passport.use(new SteamStrategy({
     returnURL: 'http://somanygames.com/auth/steam/return',
     realm: 'http://somanygames.com'
   },
-  function(identifier, profile, done) {
+  (identifier, profile, done) => {
     // asynchronous verification, for effect...
-    process.nextTick(function () {
-
+    process.nextTick(() => {
       // To keep the example simple, the user's Steam profile is returned to
       // represent the logged-in user.  In a typical application, you would want
       // to associate the Steam account with a user record in your database,
@@ -48,10 +48,10 @@ passport.use(new SteamStrategy({
   }
 ));
 
-var app = express.createServer(express.logger());
+const app = express.createServer(express.logger());
 
 // configure Express
-app.configure(function() {
+app.configure(() => {
 //    app.set('views', __dirname + '/views');
 //    app.set('view engine', 'ejs');
     app.use(express.logger());
@@ -67,23 +67,22 @@ app.configure(function() {
     app.use(express.static(__dirname));
 });
 
-var index = jade.compile(fs.readFileSync('index.jade', 'utf8'));
-var lowThreshold = 1, medThreshold = 5;
+const index = jade.compile(fs.readFileSync('index.jade', 'utf8'));
+const lowThreshold = 1, medThreshold = 5;
 
-var debug = function(d){
+function debug(d){
     console.log(d);
 };
 
-var fix = function(games) {
+function fix(games) {
     var g = [];
     try {
-        for (var i = 0; i < games.length; i++) {
-			var hours = 0;		
-			if(games[i] && games[i].hoursOnRecord)
-				hours = games[i].hoursOnRecord[0].replace(',', '');
-			console.log(hours);
-            hours = parseFloat(hours);
-            g.push({ name:games[i].name[0], hoursOnRecord:hours });
+        games.forEach((game) => {
+            let hours = 0;		
+	    if (game && game.hoursOnRecord)
+		hours = parseFloat(games[i].hoursOnRecord[0].replace(',', ''));
+
+	    g.push({ name:game.name[0], hoursOnRecord:hours });
         }
     }
     catch (e){
@@ -91,40 +90,36 @@ var fix = function(games) {
         return {error: e};
     }
 
-    g.sort(function (a, b) { return a.hoursOnRecord - b.hoursOnRecord; });
+    g.sort((a, b) => a.hoursOnRecord > b.hoursOnRecord);
     return {games: g};
 };
 
-var getUserGameData = function(user, onEnd){
-    var options = {
+function getUserGameData(user, onEnd){
+    const options = {
         host:'steamcommunity.com',
         port:80,
         path:'/id/USERNAME/games?tab=all&xml=1'.replace(/USERNAME/, user)
     };
 
     http.get(options, function(res){
-        var data = '';
+        let data = '';
         res.on('data', function(chunk){ data += chunk; });
         res.on('end', function(){ onEnd(data); });
     });
 };
 
-app.get('/', function(request, response){
-    //TODO: REMOVE
-    index = jade.compile(fs.readFileSync('index.jade', 'utf8'));
-
+app.get('/', (request, response) => {
     response.setHeader("Content-Type", "text/html");
     response.send(index({}));
 });
 
-app.get('/games/:user', function (request, response) {
-    getUserGameData(request.params['user'], function (gamesXml) {
+app.get('/games/:user', (request, response) => {
+    getUserGameData(request.params['user'], (gamesXml) => {
         try {
             if (/The Steam Community is currently unavailable/.test(gamesXml))
                 throw 'Cannot contact Steam. Try again later.';
 
             parser.parseString(gamesXml, function (err, gamesJson) {
-                //console.log(gamesJson.gamesList.games[0]);
                 if (err) throw err;
                 if (!gamesJson || !gamesJson.gamesList || !gamesJson.gamesList.games) throw "No data.";
 
@@ -145,10 +140,7 @@ app.get('/games/:user', function (request, response) {
 //   the user to steam.com.  After authenticating, Steam will redirect the
 //   user back to this application at /auth/steam/return
 app.get('/auth/steam',
-  passport.authenticate('steam', { failureRedirect: '/login' }),
-  function(req, res) {
-    res.redirect('/');
-  });
+  passport.authenticate('steam', { failureRedirect: '/login' }), (req, res) => res.redirect('/'));
 
 // GET /auth/steam/return
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -156,18 +148,15 @@ app.get('/auth/steam',
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
 app.get('/auth/steam/return',
-  passport.authenticate('steam', { failureRedirect: '/login' }),
-  function(req, res) {
-    res.redirect('/');
-  });
+  passport.authenticate('steam', { failureRedirect: '/login' }), (req, res) => res.redirect('/'));
 
-app.get('/logout', function(req, res){
+app.get('/logout', (req, res) => {
   req.logout();
   res.redirect('/');
 });
 
 var port = process.env.PORT || 5000;
-app.listen(port, function () {
+app.listen(port, () => {
     console.log("Listening on " + port);
 });
 
