@@ -80,10 +80,10 @@ function fix(games) {
         games.forEach((game) => {
             let hours = 0;		
 	    if (game && game.hoursOnRecord)
-		hours = parseFloat(games[i].hoursOnRecord[0].replace(',', ''));
+		hours = parseFloat(game.hoursOnRecord[0].replace(',', ''));
 
 	    g.push({ name:game.name[0], hoursOnRecord:hours });
-        }
+        })
     }
     catch (e){
         console.log("Error 1: " + e);
